@@ -53,7 +53,7 @@ export default function Header({ activeTab, setActiveTab, onOpenSettings }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
               <span className={`pulse-beacon ${apiKey ? 'online' : 'online'}`} />
               <span style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                {apiKey ? `Live Multimodal (${currentModel.includes('2.0') ? 'Gemini 2.0' : 'Gemini 1.5'})` : 'Clinical Vision Engine (Zero-Latency Ready)'}
+                {apiKey ? `Live Multimodal (${currentModel.includes('3.8') ? 'Gemini 3.8 Flash' : currentModel.includes('1.5') ? 'Gemini 1.5' : 'Gemini AI'})` : 'Clinical Vision Engine (Zero-Latency Ready)'}
               </span>
             </div>
           </div>
