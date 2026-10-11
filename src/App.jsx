@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from './components/Header';
 import ApiKeyModal from './components/ApiKeyModal';
 import VisionScanner from './components/VisionScanner';
+import InteractionRadar from './components/InteractionRadar';
 import { CLINICAL_DEMO_CASES } from './services/aiEngine';
 import { Activity, ShieldAlert, FileText, Sparkles, AlertTriangle, ArrowRight, Camera, Pill, Cpu } from 'lucide-react';
 
@@ -70,18 +71,13 @@ export default function App() {
           />
         )}
 
-        {/* Tab 2: Radar Placeholder for Phase 4 */}
+        {/* Tab 2: Interaction Radar & DDI Matrix */}
         {activeTab === 'radar' && (
-          <div className="glass-panel" style={{ padding: '36px', textAlign: 'center' }}>
-            <ShieldAlert size={48} color="#f87171" style={{ margin: '0 auto 16px auto' }} />
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Cross-Drug Interaction Radar</h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 20px auto' }}>
-              Deep clinical pharmacological interaction matrices, severe bleed warnings, and contraindication graphs will be expanded in the upcoming phases.
-            </p>
-            <div style={{ display: 'inline-block', padding: '12px 20px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-              <span style={{ color: '#fca5a5', fontWeight: 600 }}>Active Danger: {activeCase.interactions[0]?.pair}</span>
-            </div>
-          </div>
+          <InteractionRadar 
+            activeCase={activeCase} 
+            setActiveCase={setActiveCase} 
+            onNavigateToScanner={() => setActiveTab('scanner')} 
+          />
         )}
 
         {/* Tab 3: Passport Placeholder */}
