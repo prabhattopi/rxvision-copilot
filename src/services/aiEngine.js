@@ -299,18 +299,38 @@ export async function convertToRasterBase64(imageInput) {
   });
 }
 
+// In-Memory & Session Cache to optimize token usage and avoid redundant Gemini calls
+const ANALYSIS_CACHE = new Map();
+
+function getCacheKey(imageInput, modelId) {
+  if (!imageInput || typeof imageInput !== 'string') return null;
+  const head = imageInput.slice(0, 120);
+  const tail = imageInput.slice(-80);
+  return `${modelId}::${imageInput.length}::${head}::${tail}`;
+}
+
 export async function analyzeMedicationImage(imageInput, activeCaseContext = null) {
   const apiKey = getStoredApiKey();
   const modelId = getStoredModel();
+
+  // Token Optimization: Check cache first before making any external calls
+  const cacheKey = getCacheKey(imageInput, modelId);
+  if (cacheKey && ANALYSIS_CACHE.has(cacheKey)) {
+    console.info('Token Optimization: Returning cached clinical analysis (0 Gemini tokens consumed)');
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return ANALYSIS_CACHE.get(cacheKey);
+  }
 
   // If no API key is provided, return instant simulated clinical response
   if (!apiKey) {
     await new Promise((resolve) => setTimeout(resolve, 1200));
     const matched = CLINICAL_DEMO_CASES.find(c => c.imagePreview === imageInput) || activeCaseContext || CLINICAL_DEMO_CASES[0];
-    return {
+    const simResult = {
       source: 'SIMULATED_CLINICAL_ENGINE',
       data: matched
     };
+    if (cacheKey) ANALYSIS_CACHE.set(cacheKey, simResult);
+    return simResult;
   }
 
   try {
@@ -400,11 +420,13 @@ export async function analyzeMedicationImage(imageInput, activeCaseContext = nul
         }
         const parsedData = JSON.parse(cleanedText);
 
-        return {
+        const liveResult = {
           source: 'LIVE_GEMINI_AI',
           model: successfulModel,
           data: parsedData
         };
+        if (cacheKey) ANALYSIS_CACHE.set(cacheKey, liveResult);
+        return liveResult;
       }
     }
 

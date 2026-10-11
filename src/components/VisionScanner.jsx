@@ -20,6 +20,7 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [analysisError, setAnalysisError] = useState(null);
+  const [userUploadedCase, setUserUploadedCase] = useState(null);
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -144,6 +145,11 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
 
       setActiveCase(parsedCase);
 
+      // Preserve this custom scan so switching demo cases never deletes it
+      if (inputSource === 'upload' || inputSource === 'camera') {
+        setUserUploadedCase(parsedCase);
+      }
+
       // Trigger Celebration or Warning
       if (parsedCase.safetyScore > 75) {
         confetti({
@@ -164,7 +170,7 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
   // Plain-Language Audio Narration (Web Speech API)
   const toggleSpeech = () => {
     if (!('speechSynthesis' in window)) {
-      alert('Speech synthesis not supported on this browser.');
+      setAnalysisError('Speech synthesis is not supported on this browser.');
       return;
     }
 
@@ -301,6 +307,43 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
               Select a Specimen to Inspect in Dual Lens:
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
+              {/* User's Uploaded Case (Saved & Preserved) */}
+              {userUploadedCase && (
+                <div
+                  onClick={() => {
+                    setActiveCase(userUploadedCase);
+                    setImagePreview(userUploadedCase.imagePreview);
+                    setAnalysisError(null);
+                    setCameraError(null);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '8px 12px',
+                    background: activeCase?.id === userUploadedCase.id ? 'rgba(16, 185, 129, 0.22)' : 'rgba(16, 185, 129, 0.08)',
+                    border: activeCase?.id === userUploadedCase.id ? '2px solid #10b981' : '1px dashed rgba(16, 185, 129, 0.5)',
+                    borderRadius: 'var(--radius-md)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <img 
+                    src={userUploadedCase.imagePreview} 
+                    alt="Your upload" 
+                    style={{ width: '42px', height: '42px', borderRadius: '6px', objectFit: 'cover' }} 
+                  />
+                  <div style={{ overflow: 'hidden' }}>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#34d399', whiteSpace: 'nowrap' }}>
+                      📁 Your Uploaded Scan
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#a7f3d0' }}>
+                      Click to restore (0 tokens)
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {CLINICAL_DEMO_CASES.map((demo) => (
                 <div
                   key={demo.id}
@@ -572,39 +615,77 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
               </div>
             </div>
 
-            {/* Elderly Plain-Language Speech Box */}
+            {/* Step 6: Prominent Elderly Plain-Language Speech Box */}
             <div style={{
-              background: 'rgba(6, 182, 212, 0.08)',
-              border: '1px solid rgba(6, 182, 212, 0.25)',
-              borderRadius: 'var(--radius-md)',
-              padding: '14px 16px',
+              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.14) 0%, rgba(14, 165, 233, 0.06) 100%)',
+              border: '2px solid rgba(6, 182, 212, 0.45)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '16px',
               display: 'flex',
+              flexDirection: 'column',
               gap: '12px',
-              alignItems: 'flex-start'
+              boxShadow: '0 0 25px rgba(6, 182, 212, 0.15)'
             }}>
-              <button
-                onClick={toggleSpeech}
-                className="btn btn-secondary btn-sm"
-                style={{
-                  padding: '8px',
-                  borderRadius: '50%',
-                  background: isSpeaking ? 'rgba(239, 68, 68, 0.2)' : 'rgba(6, 182, 212, 0.2)',
-                  color: isSpeaking ? '#f87171' : '#38bdf8',
-                  border: 'none',
-                  cursor: 'pointer',
-                  flexShrink: 0
-                }}
-                title={isSpeaking ? 'Stop Audio' : 'Play Audio Summary for Elderly Patient'}
-              >
-                {isSpeaking ? <VolumeX size={18} /> : <Volume2 size={18} />}
-              </button>
-              <div>
-                <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', marginBottom: '2px' }}>
-                  Elderly Voice Translation:
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ padding: '6px', background: 'rgba(6, 182, 212, 0.25)', borderRadius: '8px', color: '#38bdf8' }}>
+                    <Volume2 size={20} />
+                  </div>
+                  <div>
+                    <span className="badge badge-cyan" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>
+                      Step 6: Elderly Audio Playback
+                    </span>
+                    <h4 style={{ margin: '2px 0 0 0', fontSize: '0.92rem', color: '#ffffff' }}>
+                      Voice Translation &amp; Speech Playback
+                    </h4>
+                  </div>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.86rem', color: '#f1f5f9', lineHeight: 1.45 }}>
+
+                {/* Big Glowing Play Voice Summary Button */}
+                <button
+                  onClick={toggleSpeech}
+                  className={`btn ${isSpeaking ? 'btn-danger' : 'btn-primary'}`}
+                  style={{
+                    padding: '8px 18px',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    boxShadow: isSpeaking ? '0 0 20px rgba(239, 68, 68, 0.5)' : '0 0 20px rgba(14, 165, 233, 0.4)'
+                  }}
+                  title={isSpeaking ? 'Stop Audio' : 'Click to hear the voice summary'}
+                >
+                  {isSpeaking ? (
+                    <>
+                      <VolumeX size={16} />
+                      <span>⏹ Stop Audio</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 size={16} />
+                      <span>▶ Listen to Voice Summary</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Spoken Text Display */}
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.75)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: 'var(--radius-md)',
+                padding: '12px 14px'
+              }}>
+                <div style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>
+                  Spoken Content (Simplified 6th-Grade Comprehension):
+                </div>
+                <p style={{ margin: 0, fontSize: '0.88rem', color: '#f1f5f9', lineHeight: 1.5, fontStyle: 'italic' }}>
                   "{activeCase?.elderlySummary}"
                 </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  <span>Paced at 0.95x speed for elderly clarity</span>
+                  <span style={{ color: isSpeaking ? '#34d399' : '#38bdf8', fontWeight: 600 }}>
+                    {isSpeaking ? '🔊 Audio playing now...' : 'Click ▶ button above to listen'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
