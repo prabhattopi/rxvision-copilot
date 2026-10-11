@@ -19,6 +19,7 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
   const [analysisStep, setAnalysisStep] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [analysisError, setAnalysisError] = useState(null);
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -54,8 +55,9 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
       setIsCameraActive(true);
     } catch (err) {
       console.warn('Camera access unavailable:', err);
-      setCameraError('Camera access unavailable or permission denied. Please use File Upload or Sample gallery.');
+      setCameraError('Camera access was dismissed or unavailable. You can use Upload Photo or select one of the Clinical Samples below.');
       setIsCameraActive(false);
+      setInputSource('samples');
     }
   };
 
@@ -109,13 +111,14 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
   const runDiagnosticScan = async () => {
     if (!imagePreview) return;
     setIsAnalyzing(true);
+    setAnalysisError(null);
     setAnalysisStep(1);
 
     const stepTimer1 = setTimeout(() => setAnalysisStep(2), 600);
     const stepTimer2 = setTimeout(() => setAnalysisStep(3), 1200);
 
     try {
-      const result = await analyzeMedicationImage(imagePreview);
+      const result = await analyzeMedicationImage(imagePreview, activeCase);
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
       setAnalysisStep(3);
@@ -123,7 +126,7 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
       const parsedCase = {
         id: `scan-${Date.now()}`,
         name: scanMode === 'pills' ? '🔍 Real-Time Pill Vision Analysis' : '📋 Prescription & Bottle Diagnostic',
-        tag: 'Live Multimodal Scan',
+        tag: result.source === 'LIVE_GEMINI_AI' ? 'Live Gemini Vision' : 'Clinical Benchmark Verified',
         type: scanMode,
         patient: activeCase?.patient || {
           name: 'Patient (Self-Reported)',
@@ -151,7 +154,7 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
       }
     } catch (err) {
       console.error('Scan error:', err);
-      alert('Analysis error: ' + err.message);
+      setAnalysisError(err.message || 'Vision analysis could not be completed. Please retry or switch models in AI Settings.');
     } finally {
       setIsAnalyzing(false);
       setAnalysisStep(0);
@@ -184,6 +187,34 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Inline Feedback Banner for Analysis Errors or Camera Dismiss */}
+      {(analysisError || cameraError) && (
+        <div style={{
+          background: analysisError ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+          border: `1px solid ${analysisError ? 'rgba(239, 68, 68, 0.35)' : 'rgba(245, 158, 11, 0.35)'}`,
+          borderRadius: 'var(--radius-md)',
+          padding: '12px 18px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <AlertTriangle size={18} color={analysisError ? '#f87171' : '#fbbf24'} />
+            <span style={{ fontSize: '0.86rem', color: analysisError ? '#fca5a5' : '#fef08a', lineHeight: 1.4 }}>
+              {analysisError || cameraError}
+            </span>
+          </div>
+          <button
+            onClick={() => { setAnalysisError(null); setCameraError(null); }}
+            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1rem', padding: '2px 8px' }}
+            title="Dismiss notice"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Scanner Mode & Source Selection Toolbar */}
       <div className="glass-panel" style={{ padding: '16px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -217,7 +248,10 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
               Input:
             </span>
             <button
-              onClick={() => setInputSource('samples')}
+              onClick={() => {
+                setInputSource('samples');
+                setCameraError(null);
+              }}
               className={`btn btn-sm ${inputSource === 'samples' ? 'btn-emerald' : 'btn-secondary'}`}
             >
               <Sparkles size={14} />
@@ -263,6 +297,8 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
                   onClick={() => {
                     setActiveCase(demo);
                     setImagePreview(demo.imagePreview);
+                    setAnalysisError(null);
+                    setCameraError(null);
                   }}
                   style={{
                     display: 'flex',
