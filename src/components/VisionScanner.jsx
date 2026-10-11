@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Camera, Upload, ZoomIn, ZoomOut, CheckCircle2, AlertTriangle, 
+  Camera, Upload, Download, ZoomIn, ZoomOut, CheckCircle2, AlertTriangle, 
   RefreshCw, Volume2, VolumeX, Sparkles, Eye, ShieldAlert, 
   FileText, Pill, ArrowRight, Layers, Sliders, Play
 } from 'lucide-react';
@@ -274,6 +274,16 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
               <Upload size={14} />
               <span>Upload Photo</span>
             </button>
+            <a 
+              href="/test-specimen-pills.png" 
+              download="test-specimen-pills.png"
+              className="btn btn-secondary btn-sm"
+              title="Download sample test image to your PC"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none', color: '#38bdf8' }}
+            >
+              <Download size={14} />
+              <span>Download Test Image</span>
+            </a>
             <input 
               type="file" 
               ref={fileInputRef} 
