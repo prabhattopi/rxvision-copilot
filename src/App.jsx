@@ -3,6 +3,8 @@ import Header from './components/Header';
 import ApiKeyModal from './components/ApiKeyModal';
 import VisionScanner from './components/VisionScanner';
 import InteractionRadar from './components/InteractionRadar';
+import SafetyPassport from './components/SafetyPassport';
+import HackathonGuide from './components/HackathonGuide';
 import { CLINICAL_DEMO_CASES } from './services/aiEngine';
 import { Activity, ShieldAlert, FileText, Sparkles, AlertTriangle, ArrowRight, Camera, Pill, Cpu } from 'lucide-react';
 
@@ -80,45 +82,17 @@ export default function App() {
           />
         )}
 
-        {/* Tab 3: Passport Placeholder */}
+        {/* Tab 3: Safety Passport */}
         {activeTab === 'passport' && (
-          <div className="glass-panel" style={{ padding: '36px', textAlign: 'center' }}>
-            <FileText size={48} color="#34d399" style={{ margin: '0 auto 16px auto' }} />
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Emergency Medication Passport</h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 20px auto' }}>
-              One-click printable and QR-scannable medical emergency card for first responders and family caregivers.
-            </p>
-          </div>
+          <SafetyPassport 
+            activeCase={activeCase} 
+            setActiveCase={setActiveCase} 
+          />
         )}
 
         {/* Tab 4: Hackathon Guide */}
         {activeTab === 'guide' && (
-          <div className="glass-panel" style={{ padding: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
-              <Sparkles size={26} color="#c084fc" />
-              <h2 style={{ fontSize: '1.5rem', margin: 0 }}>Banana Hacks 2026 Presentation Story</h2>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-              <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
-                <h4 style={{ color: '#38bdf8', marginBottom: '8px' }}>🎯 The Problem (First 30 seconds of video)</h4>
-                <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  Over 1.5 million preventable medication injuries occur every year. Elderly patients frequently take multiple prescriptions, mix up look-alike pills, or take dangerous over-the-counter drugs like Aspirin while on blood thinners like Warfarin.
-                </p>
-              </div>
-              <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
-                <h4 style={{ color: '#34d399', marginBottom: '8px' }}>⚡ Image AI Pipeline (Next 60 seconds)</h4>
-                <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  RxVision ingests photos of loose pills or messy handwritten doctor slips. Using multimodal vision models, it extracts drug names, strengths, and imprint identifiers, cross-referencing them against lethal interaction databases in real time.
-                </p>
-              </div>
-              <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
-                <h4 style={{ color: '#c084fc', marginBottom: '8px' }}>🏆 Why It Wins</h4>
-                <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  Combines high-utility social impact, multimodal vision AI, zero-cost Google AI Studio free tier, zero latency, and an intuitive accessibility-first UI with plain-language summaries.
-                </p>
-              </div>
-            </div>
-          </div>
+          <HackathonGuide />
         )}
       </main>
 

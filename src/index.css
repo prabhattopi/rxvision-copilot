@@ -401,3 +401,46 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
 }
 
+/* Print Styles for Emergency Passport */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    background-image: none !important;
+  }
+
+  header, footer, nav, button, .no-print {
+    display: none !important;
+  }
+
+  .print-passport-card {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 2px solid #0f172a !important;
+    box-shadow: none !important;
+    padding: 20px !important;
+    max-width: 100% !important;
+  }
+
+  .print-passport-card strong, 
+  .print-passport-card span,
+  .print-passport-card h1,
+  .print-passport-card h2,
+  .print-passport-card h3,
+  .print-passport-card h4,
+  .print-passport-card p {
+    color: #0f172a !important;
+  }
+
+  .print-passport-card .badge {
+    border: 1px solid #0f172a !important;
+    color: #0f172a !important;
+    background: #f1f5f9 !important;
+  }
+
+  .print-passport-card div {
+    border-color: #cbd5e1 !important;
+  }
+}
+
+

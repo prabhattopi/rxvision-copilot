@@ -81,6 +81,24 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
     setImagePreview(dataUrl);
     setInputSource('upload');
     stopCamera();
+
+    // Fresh slate for new camera frame
+    const freshCameraCase = {
+      id: `fresh-camera-${Date.now()}`,
+      name: '📷 Fresh Camera Snapshot',
+      tag: 'Awaiting Diagnostic Scan',
+      caption: 'Captured camera frame ready for analysis',
+      patient: activeCase?.patient || { name: 'Eleanor Vance', age: 78, conditions: ['Atrial Fibrillation'], allergies: ['Penicillin'] },
+      extractedMedications: [],
+      interactions: [],
+      elderlySummary: 'Camera frame captured. Click "Run Multimodal Scan" to identify pills and verify safety.',
+      safetyScore: null,
+      imagePreview: dataUrl
+    };
+    setActiveCase(freshCameraCase);
+    setUserUploadedCase(freshCameraCase);
+    setAnalysisError(null);
+    setCameraError(null);
   };
 
   const handleFileUpload = (e) => {
@@ -88,13 +106,35 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
     if (file) {
       processFile(file);
     }
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const processFile = (file) => {
     const reader = new FileReader();
     reader.onload = (event) => {
-      setImagePreview(event.target.result);
+      const dataUrl = event.target.result;
+      setImagePreview(dataUrl);
       setInputSource('upload');
+
+      // Fresh slate for new file upload
+      const freshCase = {
+        id: `fresh-upload-${Date.now()}`,
+        name: `📁 ${file.name || 'Newly Uploaded Specimen'}`,
+        tag: 'Awaiting Diagnostic Scan',
+        caption: file.name || 'New photo ready for analysis',
+        patient: activeCase?.patient || { name: 'Eleanor Vance', age: 78, conditions: ['Atrial Fibrillation'], allergies: ['Penicillin'] },
+        extractedMedications: [],
+        interactions: [],
+        elderlySummary: 'New image uploaded. Click "Run Multimodal Scan" to identify medicines and check interactions.',
+        safetyScore: null,
+        imagePreview: dataUrl
+      };
+      setActiveCase(freshCase);
+      setUserUploadedCase(freshCase);
+      setAnalysisError(null);
+      setCameraError(null);
     };
     reader.readAsDataURL(file);
   };
@@ -119,7 +159,7 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
     const stepTimer2 = setTimeout(() => setAnalysisStep(3), 1200);
 
     try {
-      const result = await analyzeMedicationImage(imagePreview, activeCase);
+      const result = await analyzeMedicationImage(imagePreview, activeCase, scanMode);
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
       setAnalysisStep(3);
@@ -495,18 +535,18 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
                   }} 
                 />
 
-                {/* Simulated AI Bounding Boxes for Detected Pills / Labels */}
-                {showBoundingBoxes && (
+                {/* AI Bounding Boxes for Detected Pills / Labels */}
+                {showBoundingBoxes && activeCase?.extractedMedications?.length > 0 && (
                   <>
                     {/* Bounding box 1 */}
                     <div className="ai-bounding-box" style={{ top: '25%', left: '22%', width: '28%', height: '36%' }}>
                       <span className="bounding-tag font-mono">
-                        {activeCase?.extractedMedications?.[0]?.name?.split(' ')[0] || 'MED-1'} ({Math.round((activeCase?.extractedMedications?.[0]?.confidence || 0.96) * 100)}%)
+                        {activeCase.extractedMedications[0].name.split(' ')[0]} ({Math.round((activeCase.extractedMedications[0].confidence || 0.96) * 100)}%)
                       </span>
                     </div>
 
                     {/* Bounding box 2 if multiple items */}
-                    {activeCase?.extractedMedications?.[1] && (
+                    {activeCase.extractedMedications[1] && (
                       <div className="ai-bounding-box" style={{ top: '35%', right: '20%', width: '30%', height: '38%' }}>
                         <span className="bounding-tag font-mono">
                           {activeCase.extractedMedications[1].name.split(' ')[0]} ({Math.round((activeCase.extractedMedications[1].confidence || 0.94) * 100)}%)
@@ -596,18 +636,20 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
                     fontSize: '2rem',
                     fontWeight: 800,
                     fontFamily: 'var(--font-mono)',
-                    color: (activeCase?.safetyScore || 0) < 40 ? '#ef4444' : (activeCase?.safetyScore || 0) < 70 ? '#f59e0b' : '#10b981'
+                    color: activeCase?.safetyScore === null || activeCase?.safetyScore === undefined ? '#94a3b8' : activeCase.safetyScore < 40 ? '#ef4444' : activeCase.safetyScore < 70 ? '#f59e0b' : '#10b981'
                   }}>
-                    {activeCase?.safetyScore || 85}
+                    {activeCase?.safetyScore !== null && activeCase?.safetyScore !== undefined ? activeCase.safetyScore : '--'}
                   </span>
                   <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>/ 100</span>
                 </div>
               </div>
 
               <div>
-                {(activeCase?.safetyScore || 0) < 40 ? (
+                {activeCase?.safetyScore === null || activeCase?.safetyScore === undefined ? (
+                  <span className="badge badge-cyan">Awaiting AI Scan</span>
+                ) : activeCase.safetyScore < 40 ? (
                   <span className="badge badge-danger">High Risk / Lethal DDI</span>
-                ) : (activeCase?.safetyScore || 0) < 70 ? (
+                ) : activeCase.safetyScore < 70 ? (
                   <span className="badge badge-amber">Moderate Interaction</span>
                 ) : (
                   <span className="badge badge-emerald">Safe Regimen</span>
@@ -678,12 +720,12 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
                   Spoken Content (Simplified 6th-Grade Comprehension):
                 </div>
                 <p style={{ margin: 0, fontSize: '0.88rem', color: '#f1f5f9', lineHeight: 1.5, fontStyle: 'italic' }}>
-                  "{activeCase?.elderlySummary}"
+                  "{activeCase?.elderlySummary || 'New specimen loaded. Click "Run Multimodal Scan" to identify medicines and generate plain-language voice translation.'}"
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                   <span>Paced at 0.95x speed for elderly clarity</span>
                   <span style={{ color: isSpeaking ? '#34d399' : '#38bdf8', fontWeight: 600 }}>
-                    {isSpeaking ? '🔊 Audio playing now...' : 'Click ▶ button above to listen'}
+                    {isSpeaking ? '🔊 Audio playing now...' : (activeCase?.extractedMedications?.length ? 'Click ▶ button above to listen' : 'Ready to speak once scanned')}
                   </span>
                 </div>
               </div>
@@ -700,12 +742,29 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
                 </h3>
               </div>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                FDA NDC & Pillbox Matched
+                FDA NDC &amp; Pillbox Matched
               </span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {activeCase?.extractedMedications?.map((med, idx) => (
+              {(!activeCase?.extractedMedications || activeCase.extractedMedications.length === 0) ? (
+                <div style={{
+                  padding: '28px 20px',
+                  textAlign: 'center',
+                  background: 'rgba(15, 23, 42, 0.5)',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px dashed rgba(6, 182, 212, 0.3)'
+                }}>
+                  <Pill size={34} color="#38bdf8" style={{ margin: '0 auto 10px auto', opacity: 0.8 }} />
+                  <p style={{ margin: 0, fontSize: '0.92rem', color: '#ffffff', fontWeight: 700 }}>
+                    Fresh Specimen Loaded — Ready to Scan
+                  </p>
+                  <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    Click <strong>"Run Multimodal Scan"</strong> below to analyze this image.
+                  </p>
+                </div>
+              ) : (
+                activeCase.extractedMedications.map((med, idx) => (
                 <div 
                   key={med.id || idx}
                   style={{
@@ -753,7 +812,7 @@ export default function VisionScanner({ activeCase, setActiveCase, onNavigateToR
                     )}
                   </div>
                 </div>
-              ))}
+              )))}
             </div>
 
             {/* Quick jump to interaction radar if conflicts exist */}
