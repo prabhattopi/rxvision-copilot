@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
 import ApiKeyModal from './components/ApiKeyModal';
+import VisionScanner from './components/VisionScanner';
 import { CLINICAL_DEMO_CASES } from './services/aiEngine';
 import { Activity, ShieldAlert, FileText, Sparkles, AlertTriangle, ArrowRight, Camera, Pill, Cpu } from 'lucide-react';
 
@@ -60,140 +61,13 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 1: Scanner Shell */}
+        {/* Tab 1: Scanner View */}
         {activeTab === 'scanner' && (
-          <div>
-            <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' }}>
-              <div>
-                <h1 style={{ fontSize: '1.85rem', marginBottom: '6px' }}>
-                  Multimodal Dual Vision Scanner
-                </h1>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-                  Snap or upload loose pills, prescription slips, or medicine bottles to verify dosages and drug-drug safety.
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <span className="badge badge-cyan">
-                  <Camera size={13} />
-                  <span>Real-Time Vision AI</span>
-                </span>
-                <span className="badge badge-purple">
-                  <Cpu size={13} />
-                  <span>Sub-second Parsing</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Quick Demo Case Selector */}
-            <div className="glass-panel" style={{ padding: '16px 20px', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-                <span style={{ fontSize: '0.82rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)' }}>
-                  Load Pre-Baked Clinical Hackathon Scenarios (Instant Showcase):
-                </span>
-                <span style={{ fontSize: '0.78rem', color: '#38bdf8' }}>
-                  Ideal for rapid judging demos
-                </span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px' }}>
-                {CLINICAL_DEMO_CASES.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => setActiveCase(c)}
-                    style={{
-                      background: activeCase.id === c.id ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-                      border: activeCase.id === c.id ? '1px solid var(--cyan-light)' : '1px solid var(--border-subtle)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: '10px 14px',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      transition: 'all 0.18s ease'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#ffffff' }}>{c.name}</span>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
-                      {c.caption}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Phase 1 Preview Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
-              <div className="glass-panel" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <Pill size={20} color="#38bdf8" />
-                  <h3 style={{ fontSize: '1.1rem' }}>Extracted Medication Registry</h3>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {activeCase.extractedMedications.map((med) => (
-                    <div key={med.id} style={{
-                      background: 'rgba(15, 23, 42, 0.6)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: '14px',
-                      border: '1px solid var(--border-subtle)'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                        <span style={{ fontWeight: 700, color: '#ffffff', fontSize: '0.95rem' }}>{med.name}</span>
-                        <span className="badge badge-cyan font-mono" style={{ fontSize: '0.7rem' }}>{med.dosage}</span>
-                      </div>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0 0 6px 0' }}>
-                        {med.purpose}
-                      </p>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                        <span style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '2px 6px', borderRadius: '4px' }}>
-                          Imprint: {med.imprint || 'N/A'}
-                        </span>
-                        <span style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '2px 6px', borderRadius: '4px' }}>
-                          Confidence: {Math.round(med.confidence * 100)}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="glass-panel" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <ShieldAlert size={20} color="#f87171" />
-                  <h3 style={{ fontSize: '1.1rem' }}>Clinical Safety Diagnostics</h3>
-                </div>
-                <div style={{
-                  background: 'rgba(15, 23, 42, 0.6)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '16px',
-                  border: '1px solid var(--border-subtle)',
-                  marginBottom: '16px'
-                }}>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
-                    PATIENT CONTEXT
-                  </div>
-                  <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: 600 }}>
-                    {activeCase.patient.name} ({activeCase.patient.age} y/o)
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                    Conditions: {activeCase.patient.conditions.join(', ')}
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'rgba(6, 182, 212, 0.08)',
-                  border: '1px solid rgba(6, 182, 212, 0.25)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '16px'
-                }}>
-                  <div style={{ fontSize: '0.78rem', color: '#38bdf8', marginBottom: '6px', fontWeight: 700 }}>
-                    ELDERLY / PLAIN-LANGUAGE AUDIO SUMMARY
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.88rem', color: '#e2e8f0', lineHeight: 1.5 }}>
-                    "{activeCase.elderlySummary}"
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <VisionScanner 
+            activeCase={activeCase} 
+            setActiveCase={setActiveCase} 
+            onNavigateToRadar={() => setActiveTab('radar')} 
+          />
         )}
 
         {/* Tab 2: Radar Placeholder for Phase 4 */}

@@ -104,21 +104,54 @@ export default function ApiKeyModal({ isOpen, onClose, onKeyUpdated }) {
 
         {/* Model Selection */}
         <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: '#cbd5e1' }}>
-            Model Engine
-          </label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', margin: 0 }}>
+              Model Engine (Speed & Reasoning Tiers)
+            </label>
+            <span style={{ fontSize: '0.74rem', color: '#38bdf8', fontWeight: 600 }}>All Free Tier Eligible</span>
+          </div>
+          
           <select 
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
             className="input-field"
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: 'pointer', marginBottom: '8px' }}
           >
             {GEMINI_MODELS.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.name}
+                {m.name} — [{m.speed} | {m.reasoning}] ({m.badge})
               </option>
             ))}
           </select>
+
+          {/* Active Model Spec Card */}
+          {(() => {
+            const current = GEMINI_MODELS.find(m => m.id === selectedModel) || GEMINI_MODELS[0];
+            return (
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.7)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: 'var(--radius-md)',
+                padding: '10px 12px',
+                fontSize: '0.8rem'
+              }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                  <span className="badge badge-cyan" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>
+                    Speed: {current.speed}
+                  </span>
+                  <span className="badge badge-purple" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>
+                    Reasoning: {current.reasoning}
+                  </span>
+                  <span className="badge badge-emerald" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>
+                    {current.tier}
+                  </span>
+                </div>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.76rem', lineHeight: 1.4 }}>
+                  {current.description}
+                </p>
+              </div>
+            );
+          })()}
         </div>
 
         {statusMessage && (

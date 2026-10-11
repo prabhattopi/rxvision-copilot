@@ -4,8 +4,42 @@
 // 2. Realistic Clinical Demo Cases (Works instantly out of the box with zero setup)
 
 export const GEMINI_MODELS = [
-  { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash (Fastest Multimodal)', isDefault: true },
-  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Standard Free)', isDefault: false },
+  { 
+    id: 'gemini-2.0-flash', 
+    name: 'Gemini 2.0 Flash', 
+    badge: 'Recommended',
+    speed: 'Ultra-Fast', 
+    reasoning: 'High Multimodal',
+    tier: 'Free Tier',
+    description: 'Next-gen vision model with sub-second image inference and high imprint OCR.'
+  },
+  { 
+    id: 'gemini-2.0-flash-lite', 
+    name: 'Gemini 2.0 Flash-Lite', 
+    badge: 'Low Latency',
+    speed: 'Fastest (Low Latency)', 
+    reasoning: 'Standard Fast',
+    tier: 'Free Tier',
+    description: 'Lightweight multimodal engine designed for extreme speed and low token cost.'
+  },
+  { 
+    id: 'gemini-1.5-pro', 
+    name: 'Gemini 1.5 Pro', 
+    badge: 'Deep Reasoning',
+    speed: 'Moderate', 
+    reasoning: 'Highest (Complex Clinical)',
+    tier: 'Free Tier',
+    description: 'Maximum depth for difficult handwritten cursive prescriptions and rare drug interactions.'
+  },
+  { 
+    id: 'gemini-1.5-flash', 
+    name: 'Gemini 1.5 Flash', 
+    badge: 'Standard',
+    speed: 'High', 
+    reasoning: 'Balanced',
+    tier: 'Free Tier',
+    description: 'Time-tested workhorse multimodal model for general pill recognition.'
+  },
 ];
 
 export const getStoredApiKey = () => {
@@ -21,7 +55,7 @@ export const setStoredApiKey = (key) => {
 };
 
 export const getStoredModel = () => {
-  return localStorage.getItem('rxvision_gemini_model') || 'gemini-2.0-flash-exp';
+  return localStorage.getItem('rxvision_gemini_model') || 'gemini-2.0-flash';
 };
 
 export const setStoredModel = (modelId) => {
