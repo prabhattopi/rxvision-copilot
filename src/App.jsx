@@ -4,7 +4,6 @@ import ApiKeyModal from './components/ApiKeyModal';
 import VisionScanner from './components/VisionScanner';
 import InteractionRadar from './components/InteractionRadar';
 import SafetyPassport from './components/SafetyPassport';
-import HackathonGuide from './components/HackathonGuide';
 import { CLINICAL_DEMO_CASES } from './services/aiEngine';
 import { Activity, ShieldAlert, FileText, Sparkles, AlertTriangle, ArrowRight, Camera, Pill, Cpu } from 'lucide-react';
 
@@ -88,11 +87,6 @@ export default function App() {
             activeCase={activeCase} 
             setActiveCase={setActiveCase} 
           />
-        )}
-
-        {/* Tab 4: Hackathon Guide */}
-        {activeTab === 'guide' && (
-          <HackathonGuide />
         )}
       </main>
 

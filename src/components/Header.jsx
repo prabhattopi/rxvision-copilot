@@ -122,39 +122,17 @@ export default function Header({ activeTab, setActiveTab, onOpenSettings }) {
               padding: '8px 16px',
               borderRadius: 'var(--radius-md)',
               border: 'none',
-              background: activeTab === 'passport' ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.15) 100%)' : 'transparent',
+              background: activeTab === 'passport' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(126, 34, 206, 0.15) 100%)' : 'transparent',
               color: activeTab === 'passport' ? '#ffffff' : 'var(--text-secondary)',
-              borderBottom: activeTab === 'passport' ? '1px solid rgba(52, 211, 153, 0.5)' : '1px solid transparent',
+              borderBottom: activeTab === 'passport' ? '1px solid rgba(192, 132, 252, 0.5)' : '1px solid transparent',
               cursor: 'pointer',
               fontWeight: 600,
               fontSize: '0.86rem',
               transition: 'all 0.15s ease'
             }}
           >
-            <FileText size={16} color={activeTab === 'passport' ? '#34d399' : 'currentColor'} />
+            <FileText size={16} color={activeTab === 'passport' ? '#c084fc' : 'currentColor'} />
             <span>Safety Passport</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('guide')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              borderRadius: 'var(--radius-md)',
-              border: 'none',
-              background: activeTab === 'guide' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(126, 34, 206, 0.15) 100%)' : 'transparent',
-              color: activeTab === 'guide' ? '#ffffff' : 'var(--text-secondary)',
-              borderBottom: activeTab === 'guide' ? '1px solid rgba(192, 132, 252, 0.5)' : '1px solid transparent',
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: '0.86rem',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <Sparkles size={16} color={activeTab === 'guide' ? '#c084fc' : 'currentColor'} />
-            <span>Hackathon Guide</span>
           </button>
         </nav>
 
